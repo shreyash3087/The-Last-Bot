@@ -4,6 +4,7 @@ import time
 from pygame.locals import *
 # Initialize pygame
 pygame.init()
+pygame.mixer.init()
 # Set the windows name
 pygame.display.set_caption("The Last Bot")
 # Set a icon

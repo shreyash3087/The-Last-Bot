@@ -3,10 +3,12 @@ import pygame
 import time
 # Set up the clock
 clock = pygame.time.Clock()
+
 # Import pygame modules
 from pygame.locals import *
 # Initialize pygame
 pygame.init()
+pygame.mixer.init()
 # Set the windows name
 pygame.display.set_caption("The Last Bot")
 # Set a icon
