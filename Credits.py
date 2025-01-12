@@ -4,7 +4,6 @@ import time
 from pygame.locals import *
 # Initialize pygame
 pygame.init()
-pygame.mixer.init()
 # Set up the clock
 clock = pygame.time.Clock()
 # Set the windows name
