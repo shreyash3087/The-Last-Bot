@@ -32,10 +32,10 @@ WizardBullet = pygame.image.load('Assets/EnemyBullet.png')
 Pause = pygame.image.load('Assets/Hit.png')
 Health = pygame.image.load('Assets/Health1.png')
 Energy = [pygame.image.load('Assets/Energy1.png'),pygame.image.load('Assets/Energy2.png'),pygame.image.load('Assets/Energy3.png'),pygame.image.load('Assets/Energy4.png'),pygame.image.load('Assets/Energy5.png'),pygame.image.load('Assets/Energy6.png'),pygame.image.load('Assets/Energy7.png')]
-BulletSound = pygame.mixer.Sound('Assets/BulletSound.wav')
-BulletHitSound = pygame.mixer.Sound('Assets/LaserHit.wav')
-BackgroundMusic = pygame.mixer.music.load('Assets/BackgroundMusic.mp3')
-pygame.mixer.music.play(-1)
+# BulletSound = pygame.mixer.Sound('Assets/BulletSound.wav')
+# BulletHitSound = pygame.mixer.Sound('Assets/LaserHit.wav')
+# BackgroundMusic = pygame.mixer.music.load('Assets/BackgroundMusic.mp3')
+# pygame.mixer.music.play(-1)
 
 # Declaring Some Variables
 Life = 0
@@ -437,7 +437,7 @@ while True:
         if (bullet.y - 12 < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and bullet.y + 12 > Enemy1.Armourhitbox[1]) :
             if (bullet.x + 14 > Enemy1.Armourhitbox[0] and bullet.x - 14 < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]) :
                 if Enemy1.visible == True:
-                    BulletHitSound.play()
+                    # BulletHitSound.play()
                     Enemy1.hit()
                     score += 1
                     bullets.pop(bullets.index(bullet))
@@ -451,7 +451,7 @@ while True:
         for enemybullet in EnemyBullets:
             if (enemybullet.y < Player.Armourhitbox[1] + Player.Armourhitbox[3] and enemybullet.y  > Player.Armourhitbox[1]) :
                 if (enemybullet.x > Player.Armourhitbox[0] and enemybullet.x < Player.Armourhitbox[0] + Player.Armourhitbox[2]) :
-                        BulletHitSound.play()
+                        # BulletHitSound.play()
                         Player.hit()
                         if score >= 5:
                             score -= 5
@@ -477,7 +477,7 @@ while True:
 
     # Space key for bullet
     if keys[K_SPACE] and shootLoop == 0:
-        BulletSound.play()
+        # BulletSound.play()
         if Player.left:
             facing = -1
         else:

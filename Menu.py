@@ -19,9 +19,9 @@ BG3 = pygame.image.load('Assets/BG3.png').convert()
 # Stores the time at which application starts
 start_time = time.time()
 # Background Music
-BackgroundMusic = pygame.mixer.music.load('Assets/MenuMusic.mp3')
+# BackgroundMusic = pygame.mixer.music.load('Assets/MenuMusic.mp3')
 # Repeat Background Musicr
-pygame.mixer.music.play(-1)
+# pygame.mixer.music.play(-1)
 # Defined class for button1
 class button():
     def __init__(self, color, x, y, width, height, text=''):
