@@ -4,6 +4,7 @@ import time
 from pygame.locals import *
 # Initialize pygame
 pygame.init()
+pygame.mixer.init()
 # Set up the clock
 clock = pygame.time.Clock()
 # Set the windows name
@@ -20,9 +21,9 @@ BG = pygame.transform.scale(BG, (int(bg_width), int(bg_height)))
 # Stores the time at which Application starts
 start_time = time.time()
 # Background Music
-# BackgroundMusic = pygame.mixer.music.load('Assets/MenuMusic.mp3')
+BackgroundMusic = pygame.mixer.music.load('Assets/MenuMusic.mp3')
 # Repeat Background Music
-# pygame.mixer.music.play(-1)
+pygame.mixer.music.play(-1)
 # Defined class for button1
 class button():
     def __init__(self, color, x, y, width, height, text=''):

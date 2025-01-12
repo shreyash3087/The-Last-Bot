@@ -1,2 +1,0 @@
-[phases.setup]
-nixPackages = ["glib", "pulseaudio", "alsa-lib", "libx11"]
