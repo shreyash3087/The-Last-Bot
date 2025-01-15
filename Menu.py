@@ -2,37 +2,27 @@ import sys
 import pygame
 import time
 from pygame.locals import *
-
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
-
 # Set the window's name
 pygame.display.set_caption("The Last Bot")
-
 # Set an icon
 pygame.display.set_icon(pygame.image.load('Assets/icon.png'))
-
 # Set up the clock
 clock = pygame.time.Clock()
-
 # Window's Size
 screen = pygame.display.set_mode((1366, 740))
-
 # Load images
 BG1 = pygame.image.load('Assets/BG1.jpg').convert()
 BG2 = pygame.image.load('Assets/BG2.png').convert()
 BG3 = pygame.image.load('Assets/BG3.png').convert()
-
 # Stores the time at which the application starts
 start_time = time.time()
-
 # Background Music
 pygame.mixer.music.load('Assets/MenuMusic.mp3')
-
 # Repeat Background Music
 pygame.mixer.music.play(-1)
-
 # Defined class for button1
 class Button():
     def __init__(self, color, x, y, width, height, text=''):
@@ -43,7 +33,6 @@ class Button():
         self.height = height
         self.text = text
         self.textColor = (248, 248, 255)
-    
     def draw(self, screen, outline=None):
         if self.text != '':
             font = pygame.font.SysFont('Berlin Sans FB', 70)
@@ -55,6 +44,7 @@ class Button():
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
+  
         return False
 
 # Defined class for button2
@@ -67,7 +57,6 @@ class Button2():
         self.height = height
         self.text = text
         self.textColor = (248, 248, 255)
-    
     def draw(self, screen, outline=None):
         if self.text != '':
             font = pygame.font.SysFont('Berlin Sans FB', 70)
@@ -79,6 +68,7 @@ class Button2():
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
+      
         return False
 
 # Improved fade function with parameters for color and speed
@@ -115,7 +105,6 @@ while True:
         # Mouse Position
         pos = pygame.mouse.get_pos()
         pos1 = pygame.mouse.get_pos()
-
         # Checking for Buttons
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             # Stop pygame
@@ -152,7 +141,6 @@ while True:
     # Stores current time in end_time variable
     end_time = time.time()
     Result = end_time - start_time
-
     # Changing Background image after 5 sec interval
     if 0 <= Result < 5:
         screen.blit(BG1, (0, 0))
