@@ -504,10 +504,10 @@ while True:
         if (Player.Armourhitbox[1] < Enemy2.Armourhitbox[1] + Enemy2.Armourhitbox[3] and Player.Armourhitbox[1] + Player.Armourhitbox[3] > Enemy2.Armourhitbox[1]):
             if (Player.Armourhitbox[0] + Player.Armourhitbox[2] > Enemy2.Armourhitbox[0] and Player.Armourhitbox[0] < Enemy2.Armourhitbox[0] + Enemy2.Armourhitbox[2]):
                 Player.hit()
-                if score >= 3:
-                    score -= 3
+                if score1 >= 3:
+                    score1 -= 3
                 else:
-                    score = 0
+                    score1 = 0
 
     # Prevents more than one bullet to come out at the same time
     if shootLoop > 0:
@@ -570,10 +570,10 @@ while True:
                 if (enemybullet.x > Player.Armourhitbox[0] and enemybullet.x < Player.Armourhitbox[0] + Player.Armourhitbox[2]) :
                         BulletHitSound.play()
                         Player.hit()
-                        if score >= 5:
-                            score -= 5
+                        if score1 >= 5:
+                            score1 -= 5
                         else:
-                            score = 0
+                            score1 = 0
                         EnemyBullets.pop(EnemyBullets.index(enemybullet))
             if enemybullet.x < 1360 and enemybullet.x > 0:
                 enemybullet.x += enemybullet.vel
