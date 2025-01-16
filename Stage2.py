@@ -641,14 +641,14 @@ while True:
         Player.idleshoot = False
 
     # Left arrow key for moving left
-    if keys[pygame.K_LEFT] and Player.x > Player.vel:
+    if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and Player.x > Player.vel:
         Player.x -= Player.vel
         Player.left = True
         Player.right = False
         Player.standing = False
 
     # Right arrow key for moving right
-    elif keys[pygame.K_RIGHT] and Player.x < 1360 - Player.width - Player.vel:
+    elif (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and Player.x < 1360 - Player.width - Player.vel:
         Player.x += Player.vel
         Player.right = True
         Player.left = False
@@ -660,7 +660,7 @@ while True:
     if not(Player.isJump):
 
         # Up arrow key for jumping
-        if keys[K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             Player.isJump = True
             Player.left = False
             Player.right = False
@@ -677,4 +677,5 @@ while True:
             Player.jumpCount = 10
 
     redrawGameWindow()
+
 
