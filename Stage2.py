@@ -633,6 +633,8 @@ while True:
         shootLoop = 1
     if (keys[pygame.K_LEFT] and keys[pygame.K_SPACE]) or (keys[pygame.K_RIGHT] and keys[pygame.K_SPACE]) :
         Player.shoot = True
+    elif (keys[pygame.K_a] and keys[pygame.K_SPACE]) or (keys[pygame.K_d] and keys[pygame.K_SPACE]):
+        Player.shoot = True
     else:
         Player.shoot = False
     if Player.standing == True and keys[pygame.K_SPACE]:
