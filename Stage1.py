@@ -8,19 +8,31 @@ from pygame.locals import *
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
-# Set the windows name
+# Set the window's name
 pygame.display.set_caption("The Last Bot")
-# Set a icon
+# Set a window icon
 pygame.display.set_icon(pygame.image.load('Assets/icon.png'))
 # Window's Size
 screen = pygame.display.set_mode((1366,768))
 # Load images
 bg = pygame.image.load("Assets/Background1.jpg").convert()
 ground = pygame.image.load("Assets/Ground.png")
-walkRight = [pygame.image.load('Assets/run1.png'),pygame.image.load('Assets/run2.png'),pygame.image.load('Assets/run3.png'),pygame.image.load('Assets/run4.png'),pygame.image.load('Assets/run5.png'),pygame.image.load('Assets/run6.png'),pygame.image.load('Assets/run7.png'),pygame.image.load('Assets/run8.png'),]
-walkLeft = [pygame.image.load('Assets/rleft1.png'),pygame.image.load('Assets/rleft2.png'),pygame.image.load('Assets/rleft3.png'),pygame.image.load('Assets/rleft4.png'),pygame.image.load('Assets/rleft5.png'),pygame.image.load('Assets/rleft6.png'),pygame.image.load('Assets/rleft7.png'),pygame.image.load('Assets/rleft8.png')]
-ShootRight = [pygame.image.load('Assets/runshoot1.png'),pygame.image.load('Assets/runshoot2.png'),pygame.image.load('Assets/runshoot3.png'),pygame.image.load('Assets/runshoot4.png'),pygame.image.load('Assets/runshoot5.png'),pygame.image.load('Assets/runshoot6.png'),pygame.image.load('Assets/runshoot7.png'),pygame.image.load('Assets/runshoot8.png'),]
-ShootLeft = [pygame.image.load('Assets/rsleft1.png'),pygame.image.load('Assets/rsleft2.png'),pygame.image.load('Assets/rsleft3.png'),pygame.image.load('Assets/rsleft4.png'),pygame.image.load('Assets/rsleft5.png'),pygame.image.load('Assets/rsleft6.png'),pygame.image.load('Assets/rsleft7.png'),pygame.image.load('Assets/rsleft8.png')]
+walkRight = [pygame.image.load('Assets/run1.png'), pygame.image.load('Assets/run2.png'),
+             pygame.image.load('Assets/run3.png'), pygame.image.load('Assets/run4.png'),
+             pygame.image.load('Assets/run5.png'), pygame.image.load('Assets/run6.png'),
+             pygame.image.load('Assets/run7.png'), pygame.image.load('Assets/run8.png')]
+walkLeft = [pygame.image.load('Assets/rleft1.png'), pygame.image.load('Assets/rleft2.png'),
+            pygame.image.load('Assets/rleft3.png'), pygame.image.load('Assets/rleft4.png'),
+            pygame.image.load('Assets/rleft5.png'), pygame.image.load('Assets/rleft6.png'),
+            pygame.image.load('Assets/rleft7.png'), pygame.image.load('Assets/rleft8.png')]
+ShootRight = [pygame.image.load('Assets/runshoot1.png'), pygame.image.load('Assets/runshoot2.png'),
+              pygame.image.load('Assets/runshoot3.png'), pygame.image.load('Assets/runshoot4.png'),
+              pygame.image.load('Assets/runshoot5.png'), pygame.image.load('Assets/runshoot6.png'),
+              pygame.image.load('Assets/runshoot7.png'), pygame.image.load('Assets/runshoot8.png')]
+ShootLeft = [pygame.image.load('Assets/rsleft1.png'), pygame.image.load('Assets/rsleft2.png'),
+             pygame.image.load('Assets/rsleft3.png'), pygame.image.load('Assets/rsleft4.png'),
+             pygame.image.load('Assets/rsleft5.png'), pygame.image.load('Assets/rsleft6.png'),
+             pygame.image.load('Assets/rsleft7.png'), pygame.image.load('Assets/rsleft8.png')]
 IdleShoot = pygame.image.load('Assets/Shoot1.png')
 IdleShootLeft = pygame.image.load('Assets/sleft1.png')
 portal1 = pygame.image.load('Assets/P1.png')
@@ -32,7 +44,10 @@ BulletRight = pygame.image.load('Assets/Bullet.png')
 WizardBullet = pygame.image.load('Assets/EnemyBullet.png')
 Pause = pygame.image.load('Assets/Hit.png')
 Health = pygame.image.load('Assets/Health1.png')
-Energy = [pygame.image.load('Assets/Energy1.png'),pygame.image.load('Assets/Energy2.png'),pygame.image.load('Assets/Energy3.png'),pygame.image.load('Assets/Energy4.png'),pygame.image.load('Assets/Energy5.png'),pygame.image.load('Assets/Energy6.png'),pygame.image.load('Assets/Energy7.png')]
+Energy = [pygame.image.load('Assets/Energy1.png'), pygame.image.load('Assets/Energy2.png'),
+          pygame.image.load('Assets/Energy3.png'), pygame.image.load('Assets/Energy4.png'),
+          pygame.image.load('Assets/Energy5.png'), pygame.image.load('Assets/Energy6.png'),
+          pygame.image.load('Assets/Energy7.png')]
 BulletSound = pygame.mixer.Sound('Assets/BulletSound.wav')
 BulletHitSound = pygame.mixer.Sound('Assets/LaserHit.wav')
 BackgroundMusic = pygame.mixer.music.load('Assets/BackgroundMusic.mp3')
@@ -45,6 +60,9 @@ P1x = 25
 P2x = 1200
 P1y = 462
 P2y = 462
+
+# New variable for charged shot threshold
+CHARGE_THRESHOLD = 30
 
 # Defined class for player
 class player(object):
@@ -68,13 +86,16 @@ class player(object):
         self.powerUp = False
         self.pause = False
         self.Armourhitbox = (self.x + 47, self.y + 12, 54, 105)
+        # New attributes for charged shot
+        self.charge = 0
+        self.isCharging = False
 
-    def draw(self,screen):
+    def draw(self, screen):
         if self.walkCount + 1 >= 24:
             self.walkCount = 0
         if self.visible:
-            if not (self.standing):
-                if self.shoot == False:
+            if not self.standing:
+                if not self.shoot:
                     if self.left:
                         screen.blit(walkLeft[self.walkCount // 3], (self.x, self.y))
                         self.walkCount += 1
@@ -92,9 +113,8 @@ class player(object):
                         screen.blit(ShootRight[self.walkCount // 3], (self.x, self.y))
                         self.walkCount += 1
                         self.Armourhitbox = (self.x + 33, self.y + 12, 54, 105)
-
             else:
-                if self.idleshoot == False:
+                if not self.idleshoot:
                     if self.left:
                         screen.blit(char, (self.x, self.y))
                         self.Armourhitbox = (self.x + 47, self.y + 12, 54, 105)
@@ -108,6 +128,13 @@ class player(object):
                     else:
                         screen.blit(IdleShoot, (self.x, self.y))
                         self.Armourhitbox = (self.x + 33, self.y + 12, 54, 105)
+        # Draw the charging bar if the player is charging a shot
+        if self.isCharging:
+            bar_width = 50
+            charge_ratio = self.charge / 60  # assuming a max charge of 60
+            fill_width = int(bar_width * charge_ratio)
+            pygame.draw.rect(screen, (255,215,0), (self.x, self.y - 20, fill_width, 10))
+            pygame.draw.rect(screen, (255,255,255), (self.x, self.y - 20, bar_width, 10), 2)
 
     def hit(self):
         self.isJump = False
@@ -116,21 +143,19 @@ class player(object):
         self.y = 505
         self.walkCount = 0
         if Player.visible:
-            screen.blit(Pause,(0,0))
+            screen.blit(Pause, (0, 0))
             font1 = pygame.font.SysFont('Berlin Sans FB', 100)
-            text = font1.render('You Got Hit!',1, (255,255,255,0))
-            screen.blit(text, (1366/2 - (text.get_width()/2),768/2 - (text.get_height()/2)))
+            text = font1.render('You Got Hit!', 1, (255,255,255,0))
+            screen.blit(text, (1366/2 - (text.get_width()/2), 768/2 - (text.get_height()/2)))
             pygame.display.update()
             i = 0
             while i < 300:
                 pygame.time.delay(2)
                 i += 1
                 for event in pygame.event.get():
-                    if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):  # Check for buttons
+                    if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                         i = 301
-                        # stop pygame
                         pygame.quit()
-                        # stop script
                         sys.exit()
         if self.health > 0:
             self.health -= 1
@@ -139,44 +164,64 @@ class player(object):
 
 # Defined class for Player's bullets
 class projectile(object):
-    def __init__(self,x,y,facing):
+    def __init__(self, x, y, facing):
         self.x = x
         self.y = y
         self.facing = facing
         self.vel = 14 * facing
 
-    def draw(self,screen):
-        if facing < 0:
-            screen.blit(BulletLeft,(self.x,self.y))
+    def draw(self, screen):
+        if self.facing < 0:
+            screen.blit(BulletLeft, (self.x, self.y))
         else:
             screen.blit(BulletRight, (self.x, self.y))
 
+# New class for the charged projectile (complex feature)
+class chargedProjectile(object):
+    def __init__(self, x, y, facing, charge):
+        self.x = x
+        self.y = y
+        self.facing = facing
+        self.charge = charge
+        self.vel = 14 * facing
+        self.damage = 1 + (charge // 10)  # Damage scales with charge level
+
+    def draw(self, screen):
+        radius = int(10 + (self.charge / 6))  # Visual size scales with charge
+        pygame.draw.circle(screen, (255,215,0), (self.x, self.y), radius)
+
 # Defined class for Enemy's bullets
 class enemyprojectile(object):
-    def __init__(self,x,y,facing):
+    def __init__(self, x, y, facing):
         self.x = x
         self.y = y
         self.facing = facing
         self.vel = 8 * facing
 
-    def draw(self,screen):
-        if Enemy1.visible == True:
-            screen.blit(WizardBullet,(self.x,self.y))
+    def draw(self, screen):
+        if Enemy1.visible:
+            screen.blit(WizardBullet, (self.x, self.y))
 
 # Defined class for Enemy
 class enemy1(object):
     enemyRight = [pygame.image.load('Assets/EW1.png'), pygame.image.load('Assets/EW2.png'),
-                 pygame.image.load('Assets/EW3.png'), pygame.image.load('Assets/EW4.png'), pygame.image.load('Assets/EW5.png'),
-                 pygame.image.load('Assets/EW6.png'), pygame.image.load('Assets/EW7.png'), pygame.image.load('Assets/EW8.png'),
-                 pygame.image.load('Assets/EW9.png'),pygame.image.load('Assets/EW10.png'), pygame.image.load('Assets/EA1.png'), pygame.image.load('Assets/EA2.png'),
-                 pygame.image.load('Assets/EA3.png'), pygame.image.load('Assets/EA4.png'), pygame.image.load('Assets/EA5.png'),
-                 pygame.image.load('Assets/EA6.png'), pygame.image.load('Assets/EA7.png'), pygame.image.load('Assets/EA8.png')]
+                  pygame.image.load('Assets/EW3.png'), pygame.image.load('Assets/EW4.png'),
+                  pygame.image.load('Assets/EW5.png'), pygame.image.load('Assets/EW6.png'),
+                  pygame.image.load('Assets/EW7.png'), pygame.image.load('Assets/EW8.png'),
+                  pygame.image.load('Assets/EW9.png'), pygame.image.load('Assets/EW10.png'),
+                  pygame.image.load('Assets/EA1.png'), pygame.image.load('Assets/EA2.png'),
+                  pygame.image.load('Assets/EA3.png'), pygame.image.load('Assets/EA4.png'),
+                  pygame.image.load('Assets/EA5.png'), pygame.image.load('Assets/EA6.png'),
+                  pygame.image.load('Assets/EA7.png'), pygame.image.load('Assets/EA8.png')]
     enemyLeft = [pygame.image.load('Assets/EL1.png'), pygame.image.load('Assets/EL2.png'),
-                pygame.image.load('Assets/EL3.png'), pygame.image.load('Assets/EL4.png'), pygame.image.load('Assets/EL5.png'),
-                pygame.image.load('Assets/EL6.png'), pygame.image.load('Assets/EL7.png'), pygame.image.load('Assets/EL8.png'),
-                pygame.image.load('Assets/EL9.png'),pygame.image.load('Assets/EL10.png') ,pygame.image.load('Assets/EAL1.png'), pygame.image.load('Assets/EAL2.png'),
-                 pygame.image.load('Assets/EAL3.png'), pygame.image.load('Assets/EAL4.png'), pygame.image.load('Assets/EAL5.png'),
-                 pygame.image.load('Assets/EAL6.png'), pygame.image.load('Assets/EAL7.png'), pygame.image.load('Assets/EAL8.png')]
+                 pygame.image.load('Assets/EL3.png'), pygame.image.load('Assets/EL4.png'),
+                 pygame.image.load('Assets/EL5.png'), pygame.image.load('Assets/EL6.png'),
+                 pygame.image.load('Assets/EL7.png'), pygame.image.load('Assets/EL8.png'),
+                 pygame.image.load('Assets/EL9.png'), pygame.image.load('Assets/EL10.png'),
+                 pygame.image.load('Assets/EAL1.png'), pygame.image.load('Assets/EAL2.png'),
+                 pygame.image.load('Assets/EAL3.png'), pygame.image.load('Assets/EAL4.png'),
+                 pygame.image.load('Assets/EAL5.png'), pygame.image.load('Assets/EAL6.png'),
+                 pygame.image.load('Assets/EAL7.png'), pygame.image.load('Assets/EAL8.png')]
 
     def __init__(self, x, y, width, height, end):
         self.x = x
@@ -191,7 +236,7 @@ class enemy1(object):
         self.health = 29
         self.visible = True
 
-    def draw(self,win):
+    def draw(self, win):
         self.move()
         if self.visible:
             if self.walkcount + 1 >= 54:
@@ -214,13 +259,13 @@ class enemy1(object):
             if self.x + self.vel < self.path[1]:
                 self.x += self.vel
             else:
-                self.vel = self.vel * -1
+                self.vel *= -1
                 self.walkcount = 0
         else:
             if self.x - self.vel > self.path[0]:
                 self.x += self.vel
             else:
-                self.vel = self.vel * -1
+                self.vel *= -1
                 self.walkcount = 0
 
     def hit(self):
@@ -229,6 +274,7 @@ class enemy1(object):
             self.health -= 1
         else:
             self.visible = False
+
 # Fade between scenes
 def fade():
     fade = pygame.Surface((1366,680))
@@ -250,19 +296,17 @@ class button():
         self.textColor = (248,248,255)
     def draw(self, screen, outline=None):
         if self.text != '':
-            font = pygame.font.SysFont('Berlin Sans FB',70)
+            font = pygame.font.SysFont('Berlin Sans FB', 70)
             text = font.render(self.text, 1, self.textColor)
-            screen.blit(text, (self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
-
+            screen.blit(text, (self.x + (self.width / 2 - text.get_width() / 2),
+                               self.y + (self.height / 2 - text.get_height() / 2)))
     def isOver(self, pos):
-        # Pos is the mouse position or a tuple of (x,y) coordinates
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True
-
         return False
 
-# Background and calling some other stuff
+# Background and drawing routine
 def redrawGameWindow():
     screen.blit(bg, (0, 0))
     text = font.render('Score: ' + str(score), 1, (255,255,255,0))
@@ -284,8 +328,8 @@ def redrawGameWindow():
     elif Player.energy >= 18:
         screen.blit(Energy[6], (0,60))
         Player.powerUp = True
-        screen.blit(portal1,(P1x,P1y))
-        screen.blit(portal2,(P2x,P2y))
+        screen.blit(portal1, (P1x, P1y))
+        screen.blit(portal2, (P2x, P2y))
     Player.draw(screen)
     Enemy1.draw(screen)
     if Player.pause:
@@ -298,7 +342,7 @@ def redrawGameWindow():
         pygame.draw.line(screen, (255, 255, 255), (650 - (text.get_width()) / 2, 320), (980, 320), 5)
         screen.blit(text, (683 - (text.get_width()) / 2, 200))
         screen.blit(text1, (683 - (text1.get_width()) / 2, 400))
-        if pygame.key.get_pressed()[K_SPACE] :
+        if pygame.key.get_pressed()[K_SPACE]:
             Player.pause = False
     Life = Player.health
     file2 = open('Assets/Health.txt', 'w')
@@ -307,9 +351,11 @@ def redrawGameWindow():
     screen.blit(ground, (0, 622))
     for bullet in bullets:
         bullet.draw(screen)
+    for c_bullet in chargedBullets:
+        c_bullet.draw(screen)
     for enemybullet in EnemyBullets:
         enemybullet.draw(screen)
-    if Player.visible == False:
+    if not Player.visible:
         screen.blit(Pause, (0, 0))
         font1 = pygame.font.SysFont('Space Ranger', 150)
         font2 = pygame.font.SysFont('Space Ranger', 100)
@@ -324,13 +370,13 @@ def redrawGameWindow():
         if Timer2 >= 3:
             fade()
             import Menu
-    if Enemy1.visible == False:
+    if not Enemy1.visible:
         screen.blit(Pause, (0, 0))
         font1 = pygame.font.SysFont('Space Ranger', 150)
         font2 = pygame.font.SysFont('Space Ranger', 100)
         text = font1.render('Victory!', 1, (255, 255, 255, 0))
         text1 = font2.render('Level Complete', 1, (255, 255, 255, 0))
-        screen.blit(text, (683 - (text.get_width())/2 , 200 ))
+        screen.blit(text, (683 - (text.get_width())/2, 200))
         screen.blit(text1, (683 - (text1.get_width())/2, 400))
         List2.append(Endtime)
         Length = len(List2)
@@ -347,40 +393,38 @@ def redrawGameWindow():
             pygame.time.delay(2)
             i += 1
             for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):  # Check for buttons
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                     i = 301
                     pygame.quit()
                     sys.exit()
     pygame.display.update()
+
 # Font declaration
 font = pygame.font.SysFont('Berlin Sans FB', 50)
-# Player's position and width,height declaration
+# Player's position and dimensions
 Player = player(50, 505, 177, 117)
-# Enemy's path,width and height declaration
-Enemy1 = enemy1(500,527,181,117, 1000)
+# Enemy's position, dimensions, and path end point
+Enemy1 = enemy1(500, 527, 181, 117, 1000)
 
-Button = button((0,255,0), 610,500,150,100,'Retry')
+Button = button((0,255,0), 610, 500, 150, 100, 'Retry')
 shootLoop = 0
 bullets = []
+chargedBullets = []  # List for charged projectiles
 EnemyBullets = []
 List = []
 List2 = []
-# Stores the time at which application starts
 startTime = time.time()
 
-#main loop
+# Main loop
 while True:
-    # Maintains 40 FPS
     clock.tick(40)
-
-    # Stores the difference of current time - start time
     Endtime = int(time.time() - startTime)
 
-    # Player's PowerUp
+    # Player's PowerUp logic (unchanged)
     if Player.powerUp:
         List.append(Endtime)
         Length = len(List)
-        Timer = List[Length - 1]-List[0]
+        Timer = List[Length - 1] - List[0]
         if Timer >= 15:
             Player.vel = 11
             Player.energy = 1
@@ -395,124 +439,149 @@ while True:
                     Player.x = 40
             Player.vel = 30
 
-    # Decreases score if enemy's bullet collids with player
-    if Enemy1.visible == True:
-        if (Player.Armourhitbox[1] < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and Player.Armourhitbox[1] + Player.Armourhitbox[3] > Enemy1.Armourhitbox[1]):
-            if (Player.Armourhitbox[0] + Player.Armourhitbox[2] > Enemy1.Armourhitbox[0] and Player.Armourhitbox[0] < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]):
+    # Collision detection between player and enemy
+    if Enemy1.visible:
+        if (Player.Armourhitbox[1] < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and 
+            Player.Armourhitbox[1] + Player.Armourhitbox[3] > Enemy1.Armourhitbox[1]):
+            if (Player.Armourhitbox[0] + Player.Armourhitbox[2] > Enemy1.Armourhitbox[0] and 
+                Player.Armourhitbox[0] < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]):
                 Player.hit()
-                if score>=3:
+                if score >= 3:
                     score -= 3
                 else:
                     score = 0
 
-    # Prevents more than one bullet to come out at the same time
     if shootLoop > 0:
         shootLoop += 1
     if shootLoop > 20:
         shootLoop = 0
 
-    # Event loop
     for event in pygame.event.get():
-        # Mouse Position
         pos = pygame.mouse.get_pos()
-        # Restarting Game
         if event.type == MOUSEBUTTONDOWN:
             if Button.isOver(pos):
                 import Stage1
-
-        # Changing Button's Color
         if event.type == MOUSEMOTION:
-            if Button.isOver(pos):
-                Button.textColor = (255, 34, 34)
-            else:
-                Button.textColor = (248, 248, 255)
-        # Check for buttons
-        if event.type == QUIT :
-            # stop pygame
+            Button.textColor = (255, 34, 34) if Button.isOver(pos) else (248, 248, 255)
+        if event.type == QUIT:
             pygame.quit()
-            # stop script
             sys.exit()
+        # Handle charging for the new charged shot
+        if event.type == KEYDOWN:
+            if event.key == K_SPACE:
+                Player.isCharging = True
+                Player.charge = 0
+        if event.type == KEYUP:
+            if event.key == K_SPACE and Player.isCharging:
+                if Player.charge >= CHARGE_THRESHOLD:
+                    BulletSound.play()
+                    facing = -1 if Player.left else 1
+                    if facing == 1 and not Player.standing:
+                        x = round(Player.x + 115)
+                        y = round(Player.y + 63)
+                    elif facing == -1 and not Player.standing:
+                        x = round(Player.x + 10)
+                        y = round(Player.y + 63)
+                    elif facing == 1 and Player.standing:
+                        x = round(Player.x + 98)
+                        y = round(Player.y + 50)
+                    elif facing == -1 and Player.standing:
+                        x = round(Player.x + 19)
+                        y = round(Player.y + 50)
+                    chargedBullets.append(chargedProjectile(x, y, facing, Player.charge))
+                else:
+                    BulletSound.play()
+                    facing = -1 if Player.left else 1
+                    if facing == 1 and not Player.standing:
+                        x = round(Player.x + 115)
+                        y = round(Player.y + 63)
+                    elif facing == -1 and not Player.standing:
+                        x = round(Player.x + 10)
+                        y = round(Player.y + 63)
+                    elif facing == 1 and Player.standing:
+                        x = round(Player.x + 98)
+                        y = round(Player.y + 50)
+                    elif facing == -1 and Player.standing:
+                        x = round(Player.x + 19)
+                        y = round(Player.y + 50)
+                    bullets.append(projectile(x, y, facing))
+                Player.isCharging = False
+                Player.charge = 0
+                shootLoop = 1
 
-    # Loop for player's bullet
+    # Increment the charge if the player is holding the shot button
+    if Player.isCharging:
+        Player.charge += 1
+        if Player.charge > 60:
+            Player.charge = 60
+        Player.shoot = True
+    else:
+        Player.shoot = False
+
+    # Update and move normal projectiles
     for bullet in bullets:
-        if (bullet.y - 12 < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and bullet.y + 12 > Enemy1.Armourhitbox[1]) :
-            if (bullet.x + 14 > Enemy1.Armourhitbox[0] and bullet.x - 14 < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]) :
-                if Enemy1.visible == True:
+        if (bullet.y - 12 < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and 
+            bullet.y + 12 > Enemy1.Armourhitbox[1]):
+            if (bullet.x + 14 > Enemy1.Armourhitbox[0] and 
+                bullet.x - 14 < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]):
+                if Enemy1.visible:
                     BulletHitSound.play()
                     Enemy1.hit()
                     score += 1
                     bullets.pop(bullets.index(bullet))
-        if bullet.x < 1360 and bullet.x > 0:
+        if 0 < bullet.x < 1360:
             bullet.x += bullet.vel
         else:
             bullets.pop(bullets.index(bullet))
 
-    # Loop for enemy's bullet
+    # Update and move charged projectiles
+    for c_bullet in chargedBullets:
+        if (c_bullet.y - 12 < Enemy1.Armourhitbox[1] + Enemy1.Armourhitbox[3] and 
+            c_bullet.y + 12 > Enemy1.Armourhitbox[1]):
+            if (c_bullet.x + 14 > Enemy1.Armourhitbox[0] and 
+                c_bullet.x - 14 < Enemy1.Armourhitbox[0] + Enemy1.Armourhitbox[2]):
+                if Enemy1.visible:
+                    BulletHitSound.play()
+                    for i in range(c_bullet.damage):
+                        Enemy1.hit()
+                    score += 1
+                    chargedBullets.pop(chargedBullets.index(c_bullet))
+        if 0 < c_bullet.x < 1360:
+            c_bullet.x += c_bullet.vel
+        else:
+            chargedBullets.pop(chargedBullets.index(c_bullet))
+
+    # Update enemy projectiles
     if Enemy1.visible and Player.visible:
         for enemybullet in EnemyBullets:
-            if (enemybullet.y < Player.Armourhitbox[1] + Player.Armourhitbox[3] and enemybullet.y  > Player.Armourhitbox[1]) :
-                if (enemybullet.x > Player.Armourhitbox[0] and enemybullet.x < Player.Armourhitbox[0] + Player.Armourhitbox[2]) :
-                        BulletHitSound.play()
-                        Player.hit()
-                        if score >= 5:
-                            score -= 5
-                        else:
-                            score = 0
-                        EnemyBullets.pop(EnemyBullets.index(enemybullet))
-            if enemybullet.x < 1360 and enemybullet.x > 0:
+            if (enemybullet.y < Player.Armourhitbox[1] + Player.Armourhitbox[3] and 
+                enemybullet.y > Player.Armourhitbox[1]):
+                if (enemybullet.x > Player.Armourhitbox[0] and 
+                    enemybullet.x < Player.Armourhitbox[0] + Player.Armourhitbox[2]):
+                    BulletHitSound.play()
+                    Player.hit()
+                    score = score - 5 if score >= 5 else 0
+                    EnemyBullets.pop(EnemyBullets.index(enemybullet))
+            if 0 < enemybullet.x < 1360:
                 enemybullet.x += enemybullet.vel
             else:
                 EnemyBullets.pop(EnemyBullets.index(enemybullet))
-    if Enemy1.vel > 0 and shootLoop == 0 or Enemy1.vel < 0 and shootLoop == 0:
-        if Enemy1.vel < 0:
-            facing = -1
-        else:
-            facing = 1
-        if len(EnemyBullets) < 1 and facing == 1:
-            EnemyBullets.append(enemyprojectile(round(Enemy1.x + 98), round(Enemy1.y + 63), facing))
-        if len(EnemyBullets) < 1 and facing == -1:
-            EnemyBullets.append(enemyprojectile(round(Enemy1.x + 25), round(Enemy1.y + 63), facing))
+    if Enemy1.vel != 0 and shootLoop == 0:
+        facing = -1 if Enemy1.vel < 0 else 1
+        if len(EnemyBullets) < 1:
+            if facing == 1:
+                EnemyBullets.append(enemyprojectile(round(Enemy1.x + 98), round(Enemy1.y + 63), facing))
+            else:
+                EnemyBullets.append(enemyprojectile(round(Enemy1.x + 25), round(Enemy1.y + 63), facing))
 
-    # Tracking key pressed
+    # Left/Right movement for the player
     keys = pygame.key.get_pressed()
-
-    # Space key for bullet
-    if keys[K_SPACE] and shootLoop == 0:
-        BulletSound.play()
-        if Player.left:
-            facing = -1
-        else:
-            facing = 1
-        if len(bullets) < 5 and facing == 1 and Player.standing == False:
-            bullets.append(projectile(round(Player.x + 115), round(Player.y + 63), facing))
-        if len(bullets) < 5 and facing == -1 and Player.standing == False:
-            bullets.append(projectile(round(Player.x + 10), round(Player.y + 63), facing))
-        if len(bullets) < 5 and facing == 1 and Player.standing == True:
-            bullets.append(projectile(round(Player.x + 98), round(Player.y + 50), facing))
-        if len(bullets) < 5 and facing == -1 and Player.standing == True:
-            bullets.append(projectile(round(Player.x + 19), round(Player.y + 50), facing))
-        shootLoop = 1
-    if (keys[pygame.K_LEFT] and keys[pygame.K_SPACE]) or (keys[pygame.K_RIGHT] and keys[pygame.K_SPACE]) :
-        Player.shoot = True
-    elif (keys[pygame.K_a] and keys[pygame.K_SPACE]) or (keys[pygame.K_d] and keys[pygame.K_SPACE]):
-        Player.shoot = True
-
-    else:
-        Player.shoot = False
-    if Player.standing == True and keys[pygame.K_SPACE]:
-        Player.idleshoot = True
-    else:
-        Player.idleshoot = False
-
-    # Left arrow key for moving left
-    if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and Player.x > Player.vel:
+    if (keys[K_LEFT] or keys[K_a]) and Player.x > Player.vel:
         Player.x -= Player.vel
         Player.left = True
         Player.right = False
         Player.standing = False
-
-    # Right arrow key for moving right
-    elif (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and Player.x < 1360 - Player.width - Player.vel:
+    elif (keys[K_RIGHT] or keys[K_d]) and Player.x < 1360 - Player.width - Player.vel:
         Player.x += Player.vel
         Player.right = True
         Player.left = False
@@ -521,19 +590,15 @@ while True:
         Player.standing = True
         Player.walkCount = 0
 
-    if not(Player.isJump):
-
-        # Up arrow key for jumping
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+    if not Player.isJump:
+        if keys[K_UP] or keys[K_w]:
             Player.isJump = True
             Player.left = False
             Player.right = False
-            Player.walkcount = 0
+            Player.walkCount = 0  # Fixed attribute name
     else:
         if Player.jumpCount >= -10:
-            neg = 1
-            if Player.jumpCount < 0:
-                neg = -1
+            neg = 1 if Player.jumpCount >= 0 else -1
             Player.y -= (Player.jumpCount ** 2) * 0.7 * neg
             Player.jumpCount -= 1
         else:
@@ -541,4 +606,3 @@ while True:
             Player.jumpCount = 10
 
     redrawGameWindow()
-
